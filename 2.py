@@ -28,18 +28,26 @@ class NeuralNetwork(Neurone):
         return np.array([neuron.prevedere(x) for neuron in self.nero])
 
     def fit_1(self, data, x, target_error):
-        for _ in range(x):
+        for i in range(x):
             total_error = 0
+            num_ind = 0
             for inputs, target in data:
                 for neuron in self.nero:
                     prediction = neuron.prevedere(inputs)
-                    error = (target - prediction) / sum(inputs[i] for i in range(0, int(len(inputs))))
-                    total_error += error
-                    for i in range(len(neuron.weight)):
-                        neuron.weight[i] += error
-
-            if total_error <= target_error:
-                return
+                    error = (target - prediction)
+                    total_error += abs(error)
+                    # print(total_error)
+                #print(inputs)
+                num_ind += 1
+                #input()
+            total_error = total_error/num_ind
+            for i in range(len(neuron.weight)):
+                neuron.weight[i] += error / sum(inputs[i] for i in range(0, int(len(inputs))))
+                # print(total_error)
+            print(i)
+                # if total_error < target_error:
+                # print(total_error, '<', target_error)
+                    # return
             
     def fit_2(self, data, x, target_error, learning_rate):
         for _ in range(x):
@@ -52,6 +60,7 @@ class NeuralNetwork(Neurone):
 
                     for i in range(len(neuron.weight)):
                         neuron.weight[i] -= learning_rate * -error * inputs[i]
+                    
 
             if total_error <= target_error:
                 return
@@ -67,8 +76,9 @@ def chet(a):
     return a
 
 def squared_error(y_true, y_pred):
-    return np.mean(0.5 * ((y_true - y_pred) ** 2))
-
+    for i in range(len(y_true)):
+        mas = 0.5 * ((y_true[i] - y_pred[i]) ** 2)
+    return np.mean(mas)
 data = pd.read_csv('2lab.csv')
 
 
@@ -86,19 +96,21 @@ run1 = NeuralNetwork(Neur_n, num_input)
 run2 = NeuralNetwork(Neur_n, num_input)
 
 learning_rate = 0.0001
-target_error = 0.0001
+target_error = 0.00001
 epochs = 1000
 run1.fit_1(inputs, epochs, target_error)
 run2.fit_2(inputs, epochs, target_error, learning_rate)
 
-for idx, neuron in enumerate(run1.nero):
-    print(f"Нейрон {idx + 1}: веса = {neuron.weight}, смещение = {neuron.bias}")
+for id, neuron in enumerate(run1.nero):
+    print(f"Нейрон {id + 1}: веса = {neuron.weight}, смещение = {neuron.bias}")
 
-for idx, neuron in enumerate(run2.nero):
-    print(f"Нейрон {idx + 1}: веса = {neuron.weight}, смещение = {neuron.bias}")
+for id, neuron in enumerate(run2.nero):
+    print(f"Нейрон {id + 1}: веса = {neuron.weight}, смещение = {neuron.bias}")
 
 y_pred_1 = [run1.predict(x)[0] for x in x_1[train_size:]]
 y_pred_2 = [run2.predict(x)[0] for x in x_1[train_size:]]
+for inputs, target in zip(y_1[train_size:], y_pred_1):  
+    print(inputs, target)
 mse_1 = squared_error(y_1[train_size:], y_pred_1)
 mse_2 = squared_error(y_1[train_size:], y_pred_2)
 print(f"Среднеквадратичная ошибка для первого варианта обучения: {mse_1}")
