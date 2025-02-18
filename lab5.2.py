@@ -16,8 +16,8 @@ X_features = np.column_stack((T, pos))
 X_train, X_test, y_train, y_test = train_test_split(X_features, y, test_size=0.25, random_state=13)
 
 model = Sequential([
-    # Dense(64, activation='relu', input_shape=(2,)),
-    Dense(32, activation='relu', input_shape=(2,)),
+    Dense(64, activation='relu', input_shape=(2,)),
+    Dense(32, activation='relu'),
     Dense(16, activation='relu'),
     Dense(8, activation='relu'),
     Dense(1)
