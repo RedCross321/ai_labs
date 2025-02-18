@@ -22,6 +22,7 @@ model = Sequential([
     Dense(16, activation='relu'),
     Dense(1)
 ])
+
 model.compile(loss='mse', optimizer='rmsprop', metrics=['mae'])
 model.fit(X_train, y_train, epochs=150, batch_size=10, validation_split=0.2)
 _, accuracy = model.evaluate(X_train, y_train)
