@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-
+from keras.callbacks import EarlyStopping
 
 X = np.arange(-20, 20.1, 0.1)
 y = np.sin(X) + np.sin(X * np.sqrt(2))
@@ -24,7 +24,7 @@ X = X.reshape(-1, 1)
 
 # model.compile(loss='mse', optimizer='Adam', metrics=['mae'])
 # model.fit(X_train, y_train, epochs=150, batch_size=10, validation_split=0.2)
-# y_pred = model.predict(X)
+# y_pred = model.predict(X_train)
 # plt.figure(figsize=(12, 6))
 # plt.scatter(X_train, y_train, color='blue', label='Реальные значения', alpha=0.5)
 # plt.scatter(X_train, np.round(y_pred), color='red', label='Предсказания', alpha=0.5)
@@ -35,25 +35,31 @@ X = X.reshape(-1, 1)
 # plt.grid(True)
 # plt.show()
 
-X1_train, X1_test, y1_train, y1_test = train_test_split(X, pos, test_size=0.25)
+X1_train, X1_test, y1_train, y1_test = train_test_split(X, pos, test_size=0.25, random_state=13)
 
 X1_train -= X1_train.mean(axis=0)
 X1_train /= X1_train.std(axis=0)
+y1_train -= y1_train.mean(axis=0)
+y1_train /= y1_train.std(axis=0)
 
 model1 = Sequential([
-    Dense(400, activation='linear', input_shape=(1,)),
-    Dense(32, activation='relu'),
-    Dense(16, activation='linear'),
-    Dense(8, activation='relu'),
-    Dense(1,activation='linear' )
+    Dense(80, activation='relu', input_shape=(1,)),
+    Dense(80, activation='relu'),
+    Dense(80, activation='relu'),
+    Dense(80, activation='relu'),
+    Dense(80, activation='relu'),
+    Dense(80, activation='relu'),
+    Dense(80, activation='relu'),
+    Dense(1, activation='linear')
 ])
-optimizer = Adam(learning_rate=0.01)
-model1.compile(loss='mse', optimizer=optimizer, metrics=['mae'])
-model1.fit(X1_train, y1_train, epochs=150, batch_size=10, validation_split=0.2)
+ear = EarlyStopping(monitor='loss', patience=50, restore_best_weights=True, verbose=1)
+# optimizer = Adam(learning_rate=0.00001)
+model1.compile(loss='mse', optimizer='rmsprop', metrics=['mae'])
+model1.fit(X1_train, y1_train, epochs=500, batch_size=5, validation_split=0.2, callbacks=[ear])
 y1_pred = model1.predict(X1_train)
 plt.figure(figsize=(12, 6))
 plt.scatter(X1_train, y1_train, color='blue', label='Реальные значения', alpha=0.5)
-plt.scatter(X1_train, np.round(y1_pred), color='red', label='Предсказания', alpha=0.5)
+plt.scatter(X1_train, y1_pred, color='red', label='Предсказания', alpha=0.5)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.title('Аппроксимация функции синуса')
